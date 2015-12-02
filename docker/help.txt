@@ -1,0 +1,14 @@
+
+=========================docker help========================================
+
+docker kill {container-name}        kills container with specified name
+	--force                         allows killing containers not in list of supported containers
+docker kill                         kills all containers from list of supported containers
+	--force                         will kill all containers even if not in list
+docker ls                           list all supported containers and their status
+docker start {container-name}       will start container if not already started
+	--force                         will start container but if container is running it will restart it
+docker restart {container-name}     if container is running it will be stopped and then started again
+docker run                          will read json file in current directory and then restart if needed
+
+=============================================================================
