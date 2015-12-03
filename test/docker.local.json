@@ -1,16 +1,39 @@
 {
-	"containers": {
+	"containers___example": {
 		"redis": {
 			"reload": true
 		},
 		"kafka": {
-			"reload" : false
+			"reload": false
 		},
 		"postgres": {
-			"reload": false,
-			"liquibase": ["./schema/init-tables.yaml"],
+			"reload": false
+		},
+		"liquibase": {
+			"reload": true,
+			"imports": [
+				"./schema/init-tables.yaml"
+			],
 			"db": "testdb"
 		}
-
+	},
+	"containers": {
+		"kafka": {
+			"reload": false
+		},
+		"elasticsearch": {
+			"reload": false
+		},
+		"postgres": {
+			"reload": false
+		},
+		"liquibase": {
+			"reload": true,
+			"imports": [
+				"./schema/init-tables.yaml",
+				"./schema/init-tables2.yaml"
+			],
+			"db": "service-inventory"
+		}
 	}
 }

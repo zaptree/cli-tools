@@ -33,9 +33,6 @@ until isKafkaReady; do
 	sleep 1
 done
 
-docker kill kafka-rest > /dev/null
-docker rm kafka-rest > /dev/null
-
 KAFKA_REST=$(docker run -d                         \
 				--name kafka-rest				   \
 				-p 8082:8082					   \

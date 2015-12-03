@@ -3,37 +3,45 @@
 var colors = require('colors');
 var _ = require('lodash');
 
-var exec = require('child_process').execSync;
+var exec = function (command, streamOutput) {
+	return require('child_process').execSync(command, streamOutput ? {stdio: [0, 1, 2]} : undefined);
+};
 
+var PATH = require('path');
 var containers = {
 	'redis': {},
-	'elasticsearch': {},
+	'elasticsearch': {
+		start: './containers/elasticsearch.sh'
+	},
 	'kafka': {
-		containers:{
+		start: './containers/kafka.sh',
+		containers: {
 			'kafka': {},
 			'kafka-rest': {}
 		}
 	},
 	'mongod': {},
-	'postgres': {},
+	'postgres': {
+		start: './containers/postgres.sh'
+	}
 };
 
 function isRunning(containerName) {
-	if(!containerExists(containerName)){
+	if (!containerExists(containerName)) {
 		return false;
 	}
-	var result = exec('docker inspect --format="{{ .State.Running }}" '+containerName).toString().trim();
+	var result = exec('docker inspect --format="{{ .State.Running }}" ' + containerName).toString().trim();
 	return result === 'true';
 }
 
-function containerExists(containerName){
+function containerExists(containerName) {
 	return getAllContainers().indexOf(containerName) > -1;
 }
 
 function getAllContainers() {
 	var result = exec('docker ps -a').toString().trim();
 	var rows = result.split(/\n/).slice(1);
-	return _.map(rows, function(row){
+	return _.map(rows, function (row) {
 		return row.match(/([^\s]+)$/)[1];
 	});
 }
@@ -46,13 +54,13 @@ module.exports = {
 
 		if (!containerName && argv.all) {
 
-			if(argv.force){
+			if (argv.force) {
 				containersToKill = getAllContainers();
-			}else{
-				_.each(containers, function(options,key){
-					if(options.containers){
+			} else {
+				_.each(containers, function (options, key) {
+					if (options.containers) {
 						containersToKill = containersToKill.concat(_.keys(options.containers));
-					}else{
+					} else {
 						containersToKill.push(key);
 					}
 				});
@@ -60,9 +68,9 @@ module.exports = {
 
 		} else if (containerName && (containers[containerName] || argv.force)) {
 			let options = containers[containerName];
-			if(options && options.containers){
+			if (options && options.containers) {
 				containersToKill = containersToKill.concat(_.keys(options.containers));
-			}else{
+			} else {
 				containersToKill.push(containerName);
 			}
 		} else {
@@ -70,13 +78,12 @@ module.exports = {
 			return;
 		}
 
-		_.each(containersToKill, function(container){
+		_.each(containersToKill, function (container) {
 
-			if(containerExists(container)){
-				let result = exec('docker rm -f '+ container);
-				console.log(result.toString().trim());
+			if (containerExists(container)) {
+				exec('docker rm -f ' + container, true);
 				console.log('Container '.green + container.yellow + ' killed/removed'.green);
-			}else if(containerName){
+			} else if (containerName) {
 				// we only show this error if a specific container was being killed
 				console.error('Container '.red + containerName.yellow + ' does not exist'.red);
 			}
@@ -84,23 +91,61 @@ module.exports = {
 
 
 	},
-	run: function (argv) {
-		console.log(arguments);
-		console.log('read json file and run whatever'.green);
+	run: function (argv, configPath) {
+		//process.cwd()
+
+		if (!configPath) {
+			configPath = PATH.resolve(process.cwd(), 'docker.local.json');
+		}
+
+		var config = require(configPath);
+
+
+		_.each(config.containers, function (options, containerName) {
+			if (this['run_' + containerName]) {
+				return this['run_' + containerName](options, containerName);
+			}
+			var options = {
+				force: options.force || options.reload
+			};
+			this.start(options, containerName)
+		}.bind(this));
+		//console.log(config);
+		//console.log('read json file and run whatever'.green);
+	},
+	run_liquibase: function (options, containerName) {
+		var scriptPath = PATH.resolve(__dirname, './containers/liquibase.sh');
+
+		var dbName = options.db || 'ua';
+		var imports = options.imports || ['./schema/init-tables.yaml'];
+
+		exec('bash ' + ([scriptPath, dbName].concat(imports)).join(' ') , true);
+
 	},
 	start: function (argv, containerName) {
-		// node . docker start kafka
-		//console.log(containerName);
-		//
-		//var response = exec('docker ps');
-		//console.log(response.toString());
-		if (containers[containerName]) {
-			console.log('kill one container');
+		var options = containers[containerName];
+		if (options) {
+			if (!isRunning(containerName) || argv.force) {
+				if (containerExists(containerName)) {
+					this.kill({force: true}, containerName);
+				}
+
+				if (options.start) {
+					var scriptPath = PATH.resolve(__dirname, options.start);
+
+					exec('bash ' + scriptPath, true);
+
+					console.log(containerName.yellow + ' successfully started'.green);
+				}
+
+			} else {
+				console.log('Container '.red + containerName.yellow + ' is already running'.red);
+			}
 		} else {
 			console.error('Container '.red + containerName.yellow + ' is not a valid container'.red)
 		}
 	},
-	restart: function(argv, containerName){
+	restart: function (argv, containerName) {
 		this.kill.apply(this, arguments);
 		this.start.apply(this, arguments);
 	}

@@ -1,0 +1,3 @@
+databaseChangeLog:
+  - include:
+      file: tables/002-kafka-offset.yaml
