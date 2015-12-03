@@ -119,6 +119,10 @@ module.exports = {
 		var dbName = options.db || 'ua';
 		var imports = options.imports || ['./schema/init-tables.yaml'];
 
+		imports = _.map(imports, function(importYaml){
+			return PATH.resolve(process.cwd(), importYaml);
+		});
+
 		exec('bash ' + ([scriptPath, dbName].concat(imports)).join(' ') , true);
 
 	},

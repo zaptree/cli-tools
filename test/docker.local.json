@@ -33,7 +33,7 @@
 				"./schema/init-tables.yaml",
 				"./schema/init-tables2.yaml"
 			],
-			"db": "service-inventory"
+			"db": "service_inventory"
 		}
 	}
 }
