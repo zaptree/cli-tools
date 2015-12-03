@@ -1,22 +1,4 @@
 {
-	"containers___example": {
-		"redis": {
-			"reload": true
-		},
-		"kafka": {
-			"reload": false
-		},
-		"postgres": {
-			"reload": false
-		},
-		"liquibase": {
-			"reload": true,
-			"imports": [
-				"./schema/init-tables.yaml"
-			],
-			"db": "testdb"
-		}
-	},
 	"containers": {
 		"kafka": {
 			"reload": false
