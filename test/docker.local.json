@@ -28,7 +28,7 @@
 			"reload": false
 		},
 		"liquibase": {
-			"reload": true,
+			"reload": false,
 			"imports": [
 				"./schema/init-tables.yaml",
 				"./schema/init-tables2.yaml"

@@ -46,6 +46,21 @@ function getAllContainers() {
 	});
 }
 
+function getPostgresDbs(postgresContainer) {
+	postgresContainer = postgresContainer || 'postgres';
+
+	var result = exec('docker exec ' + postgresContainer + ' psql -U postgres -lqt').toString().trim();
+
+	return result.split(/\n/).reduce(function (result, row) {
+		row = row.trim();
+		var match = row.match(/^[^\s|]+/);
+		if (match) {
+			result.push(match[0]);
+		}
+		return result;
+	}, []);
+}
+
 
 module.exports = {
 	kill: function (argv, containerName) {
@@ -114,16 +129,25 @@ module.exports = {
 		//console.log('read json file and run whatever'.green);
 	},
 	run_liquibase: function (options, containerName) {
+
 		var scriptPath = PATH.resolve(__dirname, './containers/liquibase.sh');
 
 		var dbName = options.db || 'ua';
 		var imports = options.imports || ['./schema/init-tables.yaml'];
 
-		imports = _.map(imports, function(importYaml){
+		imports = _.map(imports, function (importYaml) {
 			return PATH.resolve(process.cwd(), importYaml);
 		});
 
-		exec('bash ' + ([scriptPath, dbName].concat(imports)).join(' ') , true);
+		if(!options.reload){
+			var dbs = getPostgresDbs();
+			if(dbs.indexOf(dbName) > -1){
+				console.log('Container '.red + 'postgres'.yellow + ' already has a db '.red + ' ' + dbName.yellow + '. Use reload:true to override'.red);
+				return;
+			}
+		}
+
+		exec('bash ' + ([scriptPath, dbName].concat(imports)).join(' '), true);
 
 	},
 	start: function (argv, containerName) {
