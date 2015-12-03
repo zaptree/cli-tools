@@ -1,0 +1,38 @@
+databaseChangeLog:
+    - changeSet:
+        id: kafka-topic-offset-1
+        author: jmartin
+        changes:
+        - createTable:
+            columns:
+            - column:
+                constraints:
+                    primaryKey: true
+                    nullable: false
+                name: topic-name
+                type: varchar(100)
+            - column:
+                constraints:
+                    primaryKey: true
+                    nullable: false
+                name: key
+                type: varchar(200)
+            - column:
+                constraints:
+                    nullable: true
+                name: offset
+                type: INT
+            tableName: kafka-topic-offset
+    - changeSet:
+        id: kafka-topic-offset-2
+        author: jmartin
+        changes:
+        - createIndex:
+            columns:
+            - column:
+                name: topic-name
+            - column:
+                name: key
+            indexName: IX__topic_name__52D6CD5F
+            tableName: kafka-topic-offset
+            unique: true

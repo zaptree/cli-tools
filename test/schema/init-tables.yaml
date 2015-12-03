@@ -1,0 +1,3 @@
+databaseChangeLog:
+  - include:
+      file: tables/001-inventory.yaml

@@ -1,0 +1,74 @@
+databaseChangeLog:
+    - changeSet:
+        id: inventory-1
+        author: jmartin
+        changes:
+        - createTable:
+            columns:
+            - column:
+                constraints:
+                    primaryKey: true
+                    nullable: false
+                name: sku
+                type: varchar(20)
+            - column:
+                constraints:
+                    primaryKey: true
+                    nullable: false
+                name: site_code
+                type: varchar(3)
+            - column:
+                constraints:
+                    nullable: false
+                name: inventory
+                type: INT
+            - column:
+                constraints:
+                    nullable: true
+                name: margin
+                type: INT
+            - column:
+                constraints:
+                    nullable: true
+                name: low_inventory_threshold
+                type: INT
+            - column:
+                constraints:
+                    nullable: false
+                name: current_health
+                type: varchar(20)
+            - column:
+                constraints:
+                    nullable: true
+                name: inventory_override
+                type: INT
+            - column:
+                constraints:
+                    nullable: false
+                name: unsynced_inventory
+                type: INT
+            - column:
+                constraints:
+                    nullable: true
+                name: start
+                type: TIMESTAMP WITH TIME ZONE
+            - column:
+                constraints:
+                    nullable: true
+                name: end
+                type: TIMESTAMP WITH TIME ZONE
+            tableName: inventory
+
+    - changeSet:
+        id: inventory-2
+        author: jmartin
+        changes:
+        - createIndex:
+            columns:
+            - column:
+                name: SKU
+            - column:
+                name: site_code
+            indexName: IX__Inventory__52D6CD5F
+            tableName: inventory
+            unique: true

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 PKG="docker-artifacts.ua-ecm.com"
-DOCKER_IP="192.168.59.103"
+DOCKER_IP=$(docker-machine ip default)
 
 KAFKA=$(docker run -d --name kafka -p 9092:9092 -p 2181:2181 -e KAFKA_ADVERTISED_HOST_NAME=$DOCKER_IP $PKG/kafka:latest | tail -n 1)
 KAFKA_TRIES=10
