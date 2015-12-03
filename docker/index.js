@@ -139,18 +139,20 @@ module.exports = {
 			return PATH.resolve(process.cwd(), importYaml);
 		});
 
-		if(!options.reload){
+		if (!options.reload) {
 			var dbs = getPostgresDbs();
-			if(dbs.indexOf(dbName) > -1){
+			if (dbs.indexOf(dbName) > -1) {
 				console.log('Container '.red + 'postgres'.yellow + ' already has a db '.red + ' ' + dbName.yellow + '. Use reload:true to override'.red);
 				return;
 			}
 		}
-
 		exec('bash ' + ([scriptPath, dbName].concat(imports)).join(' '), true);
+		console.log('Container '.green+'liquibase'.yellow + ' successfully created db '.green + dbName.yellow);
 
 	},
 	start: function (argv, containerName) {
+		//fixme: add ability to start/restart only subcontainer i.e. "cli-tools docker start kafka.kafka-rest --force"
+
 		var options = containers[containerName];
 		if (options) {
 			if (!isRunning(containerName) || argv.force) {
@@ -178,9 +180,3 @@ module.exports = {
 		this.start.apply(this, arguments);
 	}
 };
-
-//if(docker.isRunning('postgres')){
-//	console.log('postgres is running');
-//}else{
-//	console.log('postgres is NOT running');
-//}
