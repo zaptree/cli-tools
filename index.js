@@ -1,6 +1,7 @@
 'use strict';
 
 var fs = require('fs');
+var path = require('path');
 
 var argv = require('yargs').argv;
 var colors = require('colors');
@@ -31,7 +32,7 @@ if(!argv._[0]){
 		if(argv.help || !command){
 			let text
 			if(!helpTexts[moduleName]){
-				helpTexts[moduleName] = fs.readFileSync('./' + moduleName + '/help.txt').toString();
+				helpTexts[moduleName] = fs.readFileSync(path.resolve(__dirname, './' + moduleName + '/help.txt')).toString();
 			}
 			console.log(helpTexts[moduleName]);
 		}else{
