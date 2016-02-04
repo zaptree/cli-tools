@@ -1,5 +1,16 @@
 'use strict';
 
+/*
+	todo: need to be able to add kafka topic but re-add them when it recreates the kafka container
+
+
+ #!/bin/bash
+ # Delete all containers
+ docker rm $(docker ps -a -q)
+ # Delete all images
+ docker rmi $(docker images -q)
+ */
+
 var colors = require('colors');
 var _ = require('lodash');
 
@@ -117,8 +128,12 @@ module.exports = {
 
 
 		_.each(config.containers, function (options, containerName) {
+			// if we are using the array format, containerName will be in options.name
+			if(options.name && _.isNumber(containerName)){
+				containerName = options.name;
+			}
 			if (this['run_' + containerName]) {
-				return this['run_' + containerName](options, containerName);
+				return this['run_' + containerName](options, config, containerName);
 			}
 			var options = {
 				force: options.force || options.reload
@@ -128,7 +143,7 @@ module.exports = {
 		//console.log(config);
 		//console.log('read json file and run whatever'.green);
 	},
-	run_liquibase: function (options, containerName) {
+	run_liquibase: function (options, config, containerName) {
 
 		var scriptPath = PATH.resolve(__dirname, './containers/liquibase.sh');
 
@@ -148,6 +163,35 @@ module.exports = {
 		}
 		exec('bash ' + ([scriptPath, dbName].concat(imports)).join(' '), true);
 		console.log('Container '.green+'liquibase'.yellow + ' successfully created db '.green + dbName.yellow);
+
+	},
+	run_custom: function(options, config, containerName){
+		_.each(options.containers, function(container){
+			if (!isRunning(container.name) || container.reload) {
+				if (containerExists(container.name)) {
+					this.kill({force: true}, container.name);
+				}
+				var ports = _.reduce(container.ports, function(result, val, key){
+					return result + '-p ' + key + ':' + val + ' ';
+				} ,'');
+
+				var links = _.reduce(container.links, function(result, val, key){
+					return result + '--link ' + key + ':' + val + ' ';
+				} ,'');
+
+				var cmd = `docker run -d --name ${container.name} ${ports} ${links} ${container.image}`;
+				console.log(cmd);
+				exec(cmd, true);
+				console.log(container.name.yellow + ' successfully started'.green);
+			} else {
+				console.log('Container '.red + container.name.yellow + ' is already running'.red);
+			}
+
+
+		}.bind(this));
+
+		// docker run --name service-product-data -p 58000:58000 --link kafka-rest:kafka-rest --link  docker-artifacts.ua-ecm.com/service-product-data:latest
+		//console.log('Container '.green+'liquibase'.yellow + ' successfully created db '.green + dbName.yellow);
 
 	},
 	start: function (argv, containerName) {
@@ -174,6 +218,9 @@ module.exports = {
 		} else {
 			console.error('Container '.red + containerName.yellow + ' is not a valid container'.red)
 		}
+	},
+	logs: function(argv){
+		console.log('I need to add functionality to tail all the logs from the different containers that are running');
 	},
 	restart: function (argv, containerName) {
 		this.kill.apply(this, arguments);

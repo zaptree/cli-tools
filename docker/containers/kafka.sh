@@ -54,3 +54,4 @@ until isKafkaRestReady; do
 	sleep 1
 done
 createTopic $KAFKA 1 test-topic
+createTopic $KAFKA 1 contentBatch

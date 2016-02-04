@@ -1,5 +1,5 @@
 {
-	"containers": {
+	"containers2": {
 		"kafka": {
 			"reload": false
 		},
@@ -16,6 +16,37 @@
 				"./schema/init-tables2.yaml"
 			],
 			"db": "service_inventory"
+		}
+	},
+	"containers": {
+		"kafka": {
+			"reload": false
+		},
+		"elasticsearch": {
+			"reload": false
+		},
+		"postgres": {
+			"reload": false
+		},
+		"custom": {
+			"containers": [
+				{
+					"reload": false,
+					"name": "service-product-data",
+					"image": "docker-artifacts.ua-ecm.com/service-product-data:latest",
+					"ports": {
+						"58000":"58000"
+					},
+					"links": {
+						"kafka-rest": "kafka-rest",
+						"elasticsearch": "elasticsearch",
+						"postgres": "postgres"
+					},
+					"command": "run some command when done",
+					"liquibase": "How do I get this working??? have array of files here and somehow read it"
+
+				}
+			]
 		}
 	}
 }
