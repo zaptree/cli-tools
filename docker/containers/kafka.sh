@@ -3,7 +3,7 @@
 PKG="docker-artifacts.ua-ecm.com"
 DOCKER_IP=$(docker-machine ip default)
 
-KAFKA=$(docker run -d --name kafka -p 9092:9092 -p 2181:2181 -e KAFKA_ADVERTISED_HOST_NAME=$DOCKER_IP $PKG/kafka:latest | tail -n 1)
+KAFKA=$(docker run -d --name kafka -p 9092:9092 -p 2181:2181 -e KAFKA_ADVERTISED_HOST_NAME=$DOCKER_IP $PKG/kafka:0.9.0.1 | tail -n 1)
 KAFKA_TRIES=10
 
 function createTopic() {
@@ -55,3 +55,15 @@ until isKafkaRestReady; do
 done
 createTopic $KAFKA 1 test-topic
 createTopic $KAFKA 1 contentBatch
+
+# service-search
+createTopic $KAFKA 1 productStyleUpdate
+
+# service-product-pricing
+#createTopic $KAFKA 1 sapAtpList
+#createTopic $KAFKA 1 productUpdate
+#createTopic $KAFKA 1 inventoryUpdate
+#createTopic $KAFKA 1 testTopicSapAtpList
+#createTopic $KAFKA 1 testProductUpdateConsumer
+#createTopic $KAFKA 1 testTopicInventoryUpdate
+#createTopic $KAFKA 1 productPriceChange

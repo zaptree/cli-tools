@@ -2,7 +2,7 @@
 
 PKG="docker-artifacts.ua-ecm.com"
 
-ELASTICSEARCH=$(docker run --name elasticsearch -p 9200:9200 -d $PKG/elasticsearch:2.1)
+ELASTICSEARCH=$(docker run --name elasticsearch -p 9200:9200 -d $PKG/elasticsearch:1.7.1)
 ELASTICSEARCH_TRIES=15
 
 function isElasticSearchReady() {

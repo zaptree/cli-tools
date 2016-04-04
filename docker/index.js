@@ -20,7 +20,9 @@ var exec = function (command, streamOutput) {
 
 var PATH = require('path');
 var containers = {
-	'redis': {},
+	'redis': {
+		start: './containers/redis.sh'
+	},
 	'elasticsearch': {
 		start: './containers/elasticsearch.sh'
 	},
