@@ -13,7 +13,7 @@ function createTopic() {
 		--rm                \
 		--link $1:container \
 		--entrypoint $ENTRY \
-			"docker-artifacts.ua-ecm.com/kafka:latest" \
+			"docker-artifacts.ua-ecm.com/kafka:0.9.0.1" \
 				--zookeeper container  \
 				--create               \
 				--replication-factor 1 \
